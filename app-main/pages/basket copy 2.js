@@ -14,7 +14,6 @@ export default function Basket() {
     removeItemFromBasket,
     customerDetails,
     updateCustomerDetails,
-    dataLoaded,
     updateItemQuantity,
   } = useBasket();
 
@@ -31,7 +30,7 @@ export default function Basket() {
   const [termsError, setTermsError] = useState('');
 
   // State for delivery option
-  const [deliveryOption, setDeliveryOption] = useState('pickup');
+  const [deliveryOption, setDeliveryOption] = useState('pickup'); // 'pickup' or 'homeDelivery'
 
   useEffect(() => {
     if (basketItems.length === 0) {
@@ -43,63 +42,16 @@ export default function Basket() {
     }
   }, [basketItems, router]);
 
-  // Fetch currentStep and customerDetails from session
   useEffect(() => {
-    const fetchSessionData = async () => {
-      try {
-        const res = await fetch('/api/getSessionData');
-        const data = await res.json();
-        if (res.ok) {
-          if (data.sessionData.currentStep) {
-            setCurrentStep(data.sessionData.currentStep);
-          }
-          if (data.sessionData.customerDetails) {
-            updateCustomerDetails(data.sessionData.customerDetails);
-          }
-        } else {
-          console.error('Error fetching session data:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching session data:', error);
-      }
-    };
-
-    fetchSessionData();
-  }, [dataLoaded]);
-
-  // Update currentStep in session when it changes
-  useEffect(() => {
-    const updateSessionData = async () => {
-      try {
-        await fetch('/api/updateSessionData', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionData: { currentStep } }),
-        });
-      } catch (error) {
-        console.error('Error updating session data:', error);
-      }
-    };
-
-    updateSessionData();
-  }, [currentStep]);
-
-  // Update customerDetails in session when they change
-  useEffect(() => {
-    const updateSessionData = async () => {
-      try {
-        await fetch('/api/updateSessionData', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionData: { customerDetails } }),
-        });
-      } catch (error) {
-        console.error('Error updating session data:', error);
-      }
-    };
-
-    updateSessionData();
-  }, [customerDetails]);
+    if (deliveryOption === 'pickup' && currentStep === 3) {
+      setLoading(true);
+      validateAddressWithDAWA();
+    } else {
+      setLoading(false);
+      setPickupPoints([]);
+      setSelectedPoint(null);
+    }
+  }, [deliveryOption, currentStep]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -122,21 +74,27 @@ export default function Basket() {
     }
   };
 
-  const fetchPickupPoints = async (dawaDetails) => {
-    if (dawaDetails.city && dawaDetails.postalCode && dawaDetails.streetNumber) {
-      try {
-        const res = await fetch(
-          `/api/postnord/servicepoints?city=${dawaDetails.city}&postalCode=${dawaDetails.postalCode}&streetName=${dawaDetails.streetName}&streetNumber=${dawaDetails.streetNumber}`
-        );
-        const data = await res.json();
-        const points = data.servicePointInformationResponse?.servicePoints || [];
-        setPickupPoints(points);
-        if (points.length > 0) {
-          setSelectedPoint(points[0].servicePointId);
-        }
-      } catch (error) {
-        console.error('Error fetching PostNord service points:', error);
-      }
+  const fetchPickupPoints = (updatedDetails) => {
+    if (updatedDetails.city && updatedDetails.postalCode && updatedDetails.streetNumber) {
+      fetch(
+        `/api/postnord/servicepoints?city=${updatedDetails.city}&postalCode=${updatedDetails.postalCode}&streetName=${updatedDetails.address}&streetNumber=${updatedDetails.streetNumber}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          const points = data.servicePointInformationResponse?.servicePoints || [];
+          setPickupPoints(points);
+          // Set default selected pickup point
+          if (points.length > 0) {
+            setSelectedPoint(points[0].servicePointId);
+          }
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching PostNord service points:', error);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
   };
 
@@ -149,35 +107,26 @@ export default function Basket() {
       });
 
       const data = await response.json();
-
-      if (
-        !data.dawaResponse ||
-        !data.dawaResponse.resultater ||
-        data.dawaResponse.resultater.length === 0
-      ) {
-        throw new Error('Invalid DAWA response');
-      }
-
-      const dawaDetails = {
+      const updatedDetails = {
+        ...customerDetails,
         streetNumber: data.dawaResponse.resultater[0].adresse.husnr,
-        streetName: data.dawaResponse.resultater[0].adresse.vejnavn,
+        address: data.dawaResponse.resultater[0].adresse.vejnavn,
         postalCode: data.dawaResponse.resultater[0].adresse.postnr,
         city: data.dawaResponse.resultater[0].adresse.postnrnavn,
       };
 
-      if (!customerDetails.city) {
-        updateCustomerDetails({ ...customerDetails, city: dawaDetails.city });
-      }
+      updateCustomerDetails(updatedDetails);
 
-      await fetchPickupPoints(dawaDetails);
+      // Fetch pickup points after DAWA validation
+      fetchPickupPoints(updatedDetails);
     } catch (error) {
       console.error('Error validating address with DAWA:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Ensure loading is set to false
     }
   };
 
-  const handleShowShippingOptions = async () => {
+  const handleShowShippingOptions = () => {
     const newErrors = {};
     if (!customerDetails.fullName) newErrors.fullName = 'Fulde navn er påkrævet';
     if (!customerDetails.mobileNumber) newErrors.mobileNumber = 'Mobilnummer er påkrævet';
@@ -192,10 +141,6 @@ export default function Basket() {
     } else {
       setErrors({});
     }
-
-    setLoading(true);
-
-    await validateAddressWithDAWA();
 
     setCurrentStep(3);
   };
@@ -282,12 +227,11 @@ export default function Basket() {
     }
   };
 
-  // Update handleStepChange to reset selectedPoint only when moving back to step 2 or earlier
   const handleStepChange = (step) => {
     // Prevent users from accessing steps they shouldn't
     if (step > currentStep) return;
 
-    // If moving back to step 2 or earlier, reset steps 3 and 4
+    // If moving back to step 2, reset steps 3 and 4
     if (step <= 2) {
       setDeliveryOption('pickup');
       setSelectedPoint(null);

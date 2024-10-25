@@ -1,10 +1,7 @@
 // pages/api/createSession.js
-
 import { db } from '../../lib/firebaseAdmin';
 import { FieldValue } from 'firebase-admin/firestore';
 import cookie from 'cookie';
-
-
 
 export default async (req, res) => {
   try {

@@ -20,24 +20,64 @@ export const BasketProvider = ({ children }) => {
     streetNumber: '',
   });
   const [isNewItemAdded, setIsNewItemAdded] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    // Fetch session data from API
-    axios
-      .get('/api/getSession')
-      .then((response) => {
-        const { basketItems, customerDetails } = response.data.session;
-        if (basketItems) {
-          setBasketItems(basketItems);
+    const fetchSessionData = async () => {
+      try {
+        const res = await fetch('/api/getSessionData');
+        const data = await res.json();
+        if (res.ok) {
+          if (data.sessionData.currentStep) {
+            setCurrentStep(data.sessionData.currentStep);
+          }
+          if (data.sessionData.customerDetails) {
+            updateCustomerDetails(data.sessionData.customerDetails);
+          }
+        } else {
+          console.error('Error fetching session data:', data.error);
         }
-        if (customerDetails) {
-          setCustomerDetails(customerDetails);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching session:', error);
-      });
+      } catch (error) {
+        console.error('Error fetching session data:', error);
+      }
+    };
+  
+    fetchSessionData();
+  }, [dataLoaded]);
+
+
+  useEffect(() => {
+    const updateSessionData = async () => {
+      try {
+        await fetch('/api/updateSessionData', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionData: { currentStep } }),
+        });
+      } catch (error) {
+        console.error('Error updating session data:', error);
+      }
+    };
+  
+    updateSessionData();
   }, []);
+
+
+  useEffect(() => {
+    const updateSessionData = async () => {
+      try {
+        await fetch('/api/updateSessionData', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionData: { customerDetails } }),
+        });
+      } catch (error) {
+        console.error('Error updating session data:', error);
+      }
+    };
+  
+    updateSessionData();
+  }, [customerDetails]);
 
   // Helper function to compare selected products
   const isSameSelection = (a, b) => {
@@ -158,6 +198,7 @@ export const BasketProvider = ({ children }) => {
         isNewItemAdded,
         setIsNewItemAdded,
         updateItemQuantity,
+        dataLoaded, // Add this line
       }}
     >
       {children}

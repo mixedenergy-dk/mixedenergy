@@ -14,7 +14,6 @@ export default function Basket() {
     removeItemFromBasket,
     customerDetails,
     updateCustomerDetails,
-    dataLoaded,
     updateItemQuantity,
   } = useBasket();
 
@@ -31,7 +30,7 @@ export default function Basket() {
   const [termsError, setTermsError] = useState('');
 
   // State for delivery option
-  const [deliveryOption, setDeliveryOption] = useState('pickup');
+  const [deliveryOption, setDeliveryOption] = useState('pickup'); // 'pickup' or 'homeDelivery'
 
   useEffect(() => {
     if (basketItems.length === 0) {
@@ -43,63 +42,16 @@ export default function Basket() {
     }
   }, [basketItems, router]);
 
-  // Fetch currentStep and customerDetails from session
   useEffect(() => {
-    const fetchSessionData = async () => {
-      try {
-        const res = await fetch('/api/getSessionData');
-        const data = await res.json();
-        if (res.ok) {
-          if (data.sessionData.currentStep) {
-            setCurrentStep(data.sessionData.currentStep);
-          }
-          if (data.sessionData.customerDetails) {
-            updateCustomerDetails(data.sessionData.customerDetails);
-          }
-        } else {
-          console.error('Error fetching session data:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching session data:', error);
-      }
-    };
-
-    fetchSessionData();
-  }, [dataLoaded]);
-
-  // Update currentStep in session when it changes
-  useEffect(() => {
-    const updateSessionData = async () => {
-      try {
-        await fetch('/api/updateSessionData', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionData: { currentStep } }),
-        });
-      } catch (error) {
-        console.error('Error updating session data:', error);
-      }
-    };
-
-    updateSessionData();
-  }, [currentStep]);
-
-  // Update customerDetails in session when they change
-  useEffect(() => {
-    const updateSessionData = async () => {
-      try {
-        await fetch('/api/updateSessionData', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionData: { customerDetails } }),
-        });
-      } catch (error) {
-        console.error('Error updating session data:', error);
-      }
-    };
-
-    updateSessionData();
-  }, [customerDetails]);
+    if (deliveryOption === 'pickup') {
+      setLoading(true);
+      validateAddressWithDAWA();
+    } else {
+      setLoading(false);
+      setPickupPoints([]);
+      setSelectedPoint(null);
+    }
+  }, [deliveryOption]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -122,6 +74,7 @@ export default function Basket() {
     }
   };
 
+  // Modify fetchPickupPoints to use async/await and delay loading state
   const fetchPickupPoints = async (dawaDetails) => {
     if (dawaDetails.city && dawaDetails.postalCode && dawaDetails.streetNumber) {
       try {
@@ -136,7 +89,11 @@ export default function Basket() {
         }
       } catch (error) {
         console.error('Error fetching PostNord service points:', error);
+      } finally {
+        setTimeout(() => setLoading(false), 1000); // Delay hiding the loading spinner by 1 second
       }
+    } else {
+      setTimeout(() => setLoading(false), 1000); // Delay hiding the loading spinner by 1 second
     }
   };
 
@@ -149,15 +106,6 @@ export default function Basket() {
       });
 
       const data = await response.json();
-
-      if (
-        !data.dawaResponse ||
-        !data.dawaResponse.resultater ||
-        data.dawaResponse.resultater.length === 0
-      ) {
-        throw new Error('Invalid DAWA response');
-      }
-
       const dawaDetails = {
         streetNumber: data.dawaResponse.resultater[0].adresse.husnr,
         streetName: data.dawaResponse.resultater[0].adresse.vejnavn,
@@ -165,19 +113,21 @@ export default function Basket() {
         city: data.dawaResponse.resultater[0].adresse.postnrnavn,
       };
 
+      // Optionally update customerDetails.city if it's empty
       if (!customerDetails.city) {
         updateCustomerDetails({ ...customerDetails, city: dawaDetails.city });
       }
 
+      // Fetch pickup points using DAWA details
       await fetchPickupPoints(dawaDetails);
     } catch (error) {
       console.error('Error validating address with DAWA:', error);
-    } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 1000); // Ensure loading is set to false in case of error
     }
   };
 
-  const handleShowShippingOptions = async () => {
+
+  const handleShowShippingOptions = () => {
     const newErrors = {};
     if (!customerDetails.fullName) newErrors.fullName = 'Fulde navn er påkrævet';
     if (!customerDetails.mobileNumber) newErrors.mobileNumber = 'Mobilnummer er påkrævet';
@@ -192,10 +142,6 @@ export default function Basket() {
     } else {
       setErrors({});
     }
-
-    setLoading(true);
-
-    await validateAddressWithDAWA();
 
     setCurrentStep(3);
   };

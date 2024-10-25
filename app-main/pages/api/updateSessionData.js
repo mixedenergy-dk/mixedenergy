@@ -1,6 +1,6 @@
-// pages/api/deleteSession.js
-import cookie from 'cookie';
+// pages/api/updateSessionData.js
 import { db } from '../../lib/firebaseAdmin';
+import cookie from 'cookie';
 
 export default async (req, res) => {
   try {
@@ -11,12 +11,18 @@ export default async (req, res) => {
       return res.status(400).json({ error: 'Missing consentId in cookies' });
     }
 
-    // Delete the session document corresponding to the consentId
-    await db.collection('sessions').doc(consentId).delete();
+    const { sessionData } = req.body;
+
+    if (!sessionData) {
+      return res.status(400).json({ error: 'Missing sessionData in request body' });
+    }
+
+    // Update the session document
+    await db.collection('sessions').doc(consentId).set(sessionData, { merge: true });
 
     res.status(200).json({ success: true });
   } catch (error) {
-    console.error('Error deleting session:', error);
+    console.error('Error updating session data:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

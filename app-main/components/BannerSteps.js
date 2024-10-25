@@ -1,3 +1,4 @@
+// components/BannerSteps.js
 import React from 'react';
 
 const BannerSteps = ({ currentStep, onStepChange }) => {
