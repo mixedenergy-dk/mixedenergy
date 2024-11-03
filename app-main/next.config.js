@@ -2,6 +2,10 @@
 
 
 export default {
+  i18n: {
+    locales: ['da', 'en'],
+    defaultLocale: 'da',
+  },
   images: {
     domains: ['firebasestorage.googleapis.com'],
   },

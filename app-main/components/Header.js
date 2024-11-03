@@ -4,13 +4,16 @@ import Image from 'next/image';
 import { useBasket } from '../components/BasketContext';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import { useTranslation } from 'next-i18next';
 
 const Header = () => {
   const { basketItems, isNewItemAdded } = useBasket();
   const [showEmptyMessage, setShowEmptyMessage] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // state to track if user is logged in
-  const [username, setUsername] = useState(''); // state to store the user's username
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
   const router = useRouter();
+  const { t } = useTranslation('common');
+  const currentLocale = router.locale || 'da';
 
   useEffect(() => {
     // Check if user is authenticated using API
@@ -33,6 +36,12 @@ const Header = () => {
     checkAuth();
   }, []);
 
+  const handleLanguageToggle = (lang) => {
+    if (lang !== currentLocale) {
+      router.push(router.pathname, router.asPath, { locale: lang });
+    }
+  };
+
   const handleMouseEnter = () => {
     if (basketItems.length === 0) {
       setShowEmptyMessage(true);
@@ -51,14 +60,13 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/sessionLogout'); // Call the logout API
-      router.push('/'); // Redirect to home after logout
+      await axios.post('/api/sessionLogout');
+      router.push('/');
     } catch (error) {
       console.error('Error logging out:', error);
     }
   };
 
-  // **Calculate the total number of items in the basket**
   const totalItemsInBasket = basketItems.reduce(
     (total, item) => total + item.quantity,
     0
@@ -69,6 +77,7 @@ const Header = () => {
       className="flex justify-between items-center p-4 shadow"
       style={{ backgroundColor: '#fab93d' }}
     >
+      {/* Logo and Title */}
       <a href="/" className="flex items-center">
         <Image
           src="/images/mixedenergy-logo.png"
@@ -78,7 +87,34 @@ const Header = () => {
         />
         <h1 className="text-3xl font-bold ml-2">Mixed Energy</h1>
       </a>
-      <nav className="flex space-x-4"></nav>
+
+      {/* Language Toggle */}
+      <div className="flex items-center space-x-2">
+        <button
+          onClick={() => handleLanguageToggle('da')}
+          className={`p-1 rounded ${currentLocale === 'da' ? 'border-2 border-blue-500' : ''}`}
+        >
+          <Image
+            src="/images/flags/denmark-flag.svg"
+            alt="Danish"
+            width={24}
+            height={24}
+          />
+        </button>
+        <button
+          onClick={() => handleLanguageToggle('en')}
+          className={`p-1 rounded ${currentLocale === 'en' ? 'border-2 border-blue-500' : ''}`}
+        >
+          <Image
+            src="/images/flags/usa-flag.svg"
+            alt="English"
+            width={24}
+            height={24}
+          />
+        </button>
+      </div>
+
+      {/* Basket and Logout */}
       <div className="relative flex items-center space-x-4">
         <div
           className="relative"
@@ -104,18 +140,17 @@ const Header = () => {
           </a>
           {showEmptyMessage && (
             <div className="absolute top-full mt-1 -left-24 bg-black text-white text-xs rounded p-2 shadow-lg">
-              Din indkøbskurv er tom
+              {t('basket_empty')}
             </div>
           )}
         </div>
 
-        {/* Conditionally render the logout button only if logged in */}
         {isLoggedIn && (
           <button
             onClick={handleLogout}
             className="bg-transparent border-2 border-black rounded px-4 py-1 hover:bg-black hover:text-white transition-all"
           >
-            Logout {username}
+            {t('logout')} {username}
           </button>
         )}
       </div>

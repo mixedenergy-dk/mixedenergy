@@ -12,6 +12,7 @@ import * as gtag from '../lib/gtag';
 import { getCookie } from '../lib/cookies';
 import axios from 'axios';
 import AddToBasketPopup from '../components/AddToBasketPopup';
+import { appWithTranslation } from 'next-i18next';
 
 function MyApp({ Component, pageProps }) {
   const { isModalOpen, closeModal } = useModal(true);
@@ -28,23 +29,6 @@ function MyApp({ Component, pageProps }) {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
-
-  // // Check for session cookie and initialize session via API
-  // useEffect(() => {
-  //   // Ensure session exists via API
-  //   axios
-  //     .get('/api/getSession')
-  //     .catch((error) => {
-  //       if (error.response && error.response.status === 404) {
-  //         // Session does not exist, create it
-  //         axios.post('/api/createSession').catch((err) => {
-  //           console.error('Error creating session:', err);
-  //         });
-  //       } else {
-  //         console.error('Error checking session:', error);
-  //       }
-  //     });
-  // }, []);
 
 
   return (
@@ -69,4 +53,4 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp;
+export default appWithTranslation(MyApp);
