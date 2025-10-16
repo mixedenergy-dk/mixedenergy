@@ -18,6 +18,20 @@ interface Product {
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 // console.log('SUPABASE_URL:', SUPABASE_URL);
 
+const buildImageUrl = (imagePath?: string): string => {
+  if (!imagePath) {
+    return '/images/xdefault-drink.png';
+  }
+
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+
+  const normalizedPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+
+  return SUPABASE_URL ? `${SUPABASE_URL}${normalizedPath}` : normalizedPath;
+};
+
 export default function Home(): JSX.Element {
   const [blandSelvMixProducts, setBlandSelvMixProducts] = useState<Product[]>([]);
   const [viBlanderForDigProducts, setViBlanderForDigProducts] = useState<Product[]>([]);
@@ -74,22 +88,22 @@ export default function Home(): JSX.Element {
         <h1 className="text-3xl font-bold">Vi blander for dig</h1>
       </div>
 
-      <div className="flex flex-wrap justify-center p-4 max-w-screen-xl mx-auto">
+      <div className="grid w-full max-w-screen-xl grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 px-4 pb-8 mx-auto">
         {viBlanderForDigProducts.map((product) => (
           <Link
             href={`/products/vi-blander-for-dig/${product.slug}`}
             key={product.id}
-            className="flex flex-col w-full md:w-1/2 lg:w-1/4 p-2"
+            className="flex h-full flex-col"
           >
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col h-full">
-              <div className="w-full h-60">
+            <div className="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-lg">
+              <div className="relative w-full bg-black/5 aspect-[463/775]">
                 <img
-                  src={`${SUPABASE_URL}${product.image}`}
+                  src={buildImageUrl(product.image)}
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 h-full w-full object-contain"
                 />
               </div>
-              <div className="p-4 flex-grow">
+              <div className="flex-grow p-4">
                 <h2 className="text-xl font-bold">{product.title}</h2>
                 {/* <p className="text-gray-700">{product.description}</p> */}
               </div>
@@ -103,22 +117,22 @@ export default function Home(): JSX.Element {
         <h1 className="text-3xl font-bold">Bland selv mix</h1>
       </div>
 
-      <div className="flex flex-wrap justify-center p-4 max-w-screen-xl mx-auto">
+      <div className="grid w-full max-w-screen-xl grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 px-4 pb-12 mx-auto">
         {blandSelvMixProducts.map((product) => (
           <Link
             href={`/products/bland-selv-mix/${product.slug}`}
             key={product.id}
-            className="flex flex-col w-full md:w-1/2 lg:w-1/4 p-2"
+            className="flex h-full flex-col"
           >
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col h-full">
-              <div className="w-full h-60">
+            <div className="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-lg">
+              <div className="relative w-full bg-black/5 aspect-[463/775]">
                 <img
-                  src={`${SUPABASE_URL}/${product.image}`}
+                  src={buildImageUrl(product.image)}
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 h-full w-full object-contain"
                 />
               </div>
-              <div className="p-4 flex-grow">
+              <div className="flex-grow p-4">
                 <h2 className="text-xl font-bold">{product.title}</h2>
               </div>
             </div>
