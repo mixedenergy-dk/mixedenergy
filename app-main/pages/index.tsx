@@ -88,15 +88,15 @@ export default function Home(): JSX.Element {
         <h1 className="text-3xl font-bold">Vi blander for dig</h1>
       </div>
 
-      <div className="grid w-full max-w-screen-xl grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 px-4 pb-8 mx-auto">
+      <div className="grid w-full max-w-screen-xl grid-cols-[repeat(auto-fit,minmax(240px,1fr))] justify-center gap-6 px-4 pb-8 mx-auto">
         {viBlanderForDigProducts.map((product) => (
           <Link
             href={`/products/vi-blander-for-dig/${product.slug}`}
             key={product.id}
-            className="flex h-full flex-col"
+            className="flex h-full w-full max-w-sm mx-auto flex-col"
           >
             <div className="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-lg">
-              <div className="relative w-full bg-black/5 aspect-[463/775]">
+              <div className="relative w-full bg-black/5 aspect-[775/463]">
                 <img
                   src={buildImageUrl(product.image)}
                   alt={product.title}
@@ -117,15 +117,15 @@ export default function Home(): JSX.Element {
         <h1 className="text-3xl font-bold">Bland selv mix</h1>
       </div>
 
-      <div className="grid w-full max-w-screen-xl grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 px-4 pb-12 mx-auto">
+      <div className="grid w-full max-w-screen-xl grid-cols-[repeat(auto-fit,minmax(240px,1fr))] justify-center gap-6 px-4 pb-12 mx-auto">
         {blandSelvMixProducts.map((product) => (
           <Link
             href={`/products/bland-selv-mix/${product.slug}`}
             key={product.id}
-            className="flex h-full flex-col"
+            className="flex h-full w-full max-w-sm mx-auto flex-col"
           >
             <div className="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-lg">
-              <div className="relative w-full bg-black/5 aspect-[463/775]">
+              <div className="relative w-full bg-black/5 aspect-[775/463]">
                 <img
                   src={buildImageUrl(product.image)}
                   alt={product.title}
