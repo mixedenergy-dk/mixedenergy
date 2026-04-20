@@ -1,54 +1,54 @@
 {
-    "type": "module",
-    "name": "nextjs-firebase-tailwind-shop",
-    "version": "1.0.0",
-    "description": "A webshop built with Next.js, Firebase, and Tailwind CSS",
-    "main": "index.js",
-    "engines": {
-        "node": "22.x"
-    },
-    "scripts": {
-        "dev": "next dev",
-        "dev:debug": "NODE_OPTIONS='--inspect=0.0.0.0:9229' next dev",
-        "build": "next build",
-        "start": "next start"
-    },
-    "dependencies": {
-        "@google-cloud/storage": "^7.14.0",
-        "@googlemaps/js-api-loader": "^1.16.8",
-        "@heroicons/react": "^2.2.0",
-        "@supabase/supabase-js": "^2.47.14",
-        "@tailwindcss/aspect-ratio": "^0.4.2",
-        "@woocommerce/woocommerce-rest-api": "^1.0.1",
-        "axios": "^1.7.9",
-        "canvas-confetti": "^1.9.3",
-        "cookie": "^1.0.2",
-        "date-fns": "^4.1.0",
-        "dotenv": "^16.4.7",
-        "firebase": "^11.1.0",
-        "firebase-admin": "^13.0.2",
-        "fireworks-js": "^2.10.8",
-        "minimist": "^1.2.8",
-        "next": "^15.1.3",
-        "nodemailer": "^6.9.16",
-        "pdfkit": "^0.15.2",
-        "raw-body": "^3.0.0",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0",
-        "uuid": "^11.0.3"
-    },
-    "devDependencies": {
-        "@types/canvas-confetti": "^1.9.0",
-        "@types/google.maps": "^3.58.1",
-        "@types/node": "^22.10.2",
-        "@types/nodemailer": "^6.4.17",
-        "@types/pdfkit": "^0.13.8",
-        "@types/react": "^19.0.2",
-        "@types/woocommerce__woocommerce-rest-api": "^1.0.5",
-        "autoprefixer": "^10.4.20",
-        "postcss": "^8.4.49",
-        "supabase": "^2.2.1",
-        "tailwindcss": "^3.4.17",
-        "typescript": "^5.7.2"
-    }
+  "type": "module",
+  "name": "nextjs-firebase-tailwind-shop",
+  "version": "1.0.0",
+  "description": "A webshop built with Next.js, Firebase, and Tailwind CSS",
+  "main": "index.js",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "dev:debug": "NODE_OPTIONS='--inspect=0.0.0.0:9229' next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.14.0",
+    "@googlemaps/js-api-loader": "^1.16.8",
+    "@heroicons/react": "^2.2.0",
+    "@supabase/supabase-js": "^2.47.14",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@woocommerce/woocommerce-rest-api": "^1.0.1",
+    "axios": "^1.7.9",
+    "canvas-confetti": "^1.9.3",
+    "cookie": "^1.0.2",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "firebase": "^11.1.0",
+    "firebase-admin": "^13.0.2",
+    "fireworks-js": "^2.10.8",
+    "minimist": "^1.2.8",
+    "next": "15.1.11",
+    "nodemailer": "^6.9.16",
+    "pdfkit": "^0.15.2",
+    "raw-body": "^3.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/google.maps": "^3.58.1",
+    "@types/node": "^22.10.2",
+    "@types/nodemailer": "^6.4.17",
+    "@types/pdfkit": "^0.13.8",
+    "@types/react": "^19.0.2",
+    "@types/woocommerce__woocommerce-rest-api": "^1.0.5",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "supabase": "^2.2.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  }
 }
